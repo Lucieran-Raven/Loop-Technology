@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Build outputs
+dist/
+dist-electron/
+release/
+build/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Electron
+electron-builder.yml
+.electron-builder/
+
+# Screenshots and captures
+screenshots/
+extra_screenshots/
+*.png
+*.jpg
+*.jpeg
+!public/*.png
+!public/*.jpg
