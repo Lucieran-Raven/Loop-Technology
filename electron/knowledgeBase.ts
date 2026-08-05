@@ -1,7 +1,7 @@
 // electron/knowledgeBase.ts
 import fs from 'fs-extra';
 import path from 'path';
-import pdf from 'pdf-parse';
+import * as pdf from 'pdf-parse';
 import mammoth from 'mammoth';
 
 interface KnowledgeDocument {

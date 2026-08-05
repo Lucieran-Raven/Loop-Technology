@@ -49,7 +49,6 @@ interface ElectronAPI {
   addAudioChunk: (chunk: any) => Promise<{ success: boolean; error?: string }>
   addTranscription: (result: any) => Promise<{ success: boolean; error?: string }>
   getTranscriptions: () => Promise<any[]>
-  getAudioContext: () => Promise<string>
   updateAudioConfig: (config: any) => Promise<{ success: boolean; error?: string }>
   getAudioConfig: () => Promise<any>
 
@@ -67,7 +66,6 @@ interface ElectronAPI {
   addChatContext: (content: string, metadata?: any) => Promise<{ success: boolean; error?: string }>
   getFullContext: () => Promise<string>
   getFormattedContextAI: () => Promise<string>
-  getAudioContext: () => Promise<string>
   getScreenContextFromManager: () => Promise<string>
   getChatContext: () => Promise<string>
   clearContextHistory: () => Promise<{ success: boolean; error?: string }>
@@ -286,7 +284,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   addChatContext: (content: string, metadata?: any) => ipcRenderer.invoke("add-chat-context", content, metadata),
   getFullContext: () => ipcRenderer.invoke("get-full-context"),
   getFormattedContextAI: () => ipcRenderer.invoke("get-formatted-context-ai"),
-  getAudioContext: () => ipcRenderer.invoke("get-audio-context"),
   getScreenContextFromManager: () => ipcRenderer.invoke("get-screen-context"),
   getChatContext: () => ipcRenderer.invoke("get-chat-context"),
   clearContextHistory: () => ipcRenderer.invoke("clear-context-history"),

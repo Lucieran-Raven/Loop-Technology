@@ -15,7 +15,7 @@ import { PlatformManager } from "./platformIntegration"
 export class AppState {
   private static instance: AppState | null = null
 
-  private windowHelper: WindowHelper
+  public windowHelper: WindowHelper
   private screenshotHelper: ScreenshotHelper
   public shortcutsHelper: ShortcutsHelper
   public processingHelper: ProcessingHelper
