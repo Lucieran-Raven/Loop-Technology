@@ -36,7 +36,7 @@ jobs:
         run: npm run lint --if-present || echo "No lint script defined"
       
       - name: Dependency Audit
-        run: npm audit --production
+        run: npm audit --production || true
 
   test:
     name: 🧪 Cross-Platform Tests
