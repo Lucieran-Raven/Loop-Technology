@@ -9,7 +9,7 @@ on:
     - cron: '0 0 * * 0' # Weekly security scan
 
 env:
-  NODE_VERSION: '20.x'
+  NODE_VERSION: '22.x'
 
 jobs:
   validate:
@@ -26,7 +26,7 @@ jobs:
       
       - name: Install Dependencies
         run: |
-          SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install --ignore-scripts
+          npm install
           npm rebuild sharp
       
       - name: TypeScript Check
@@ -58,7 +58,7 @@ jobs:
       
       - name: Install Dependencies
         run: |
-          SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install --ignore-scripts
+          npm install
           npm rebuild sharp
       
       - name: Build Project
@@ -86,7 +86,7 @@ jobs:
       
       - name: Install Dependencies
         run: |
-          SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install --ignore-scripts
+          npm install
           npm rebuild sharp
       
       - name: Build App
@@ -159,6 +159,10 @@ jobs:
              [ "${{ needs.build.result }}" = "success" ] && \
              [ "${{ needs.security.result }}" = "success" ]; then
             echo "✅ **All checks passed!**" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.test.result }}" = "skipped" ] && \
+             [ "${{ needs.build.result }}" = "skipped" ] && \
+             [ "${{ needs.security.result }}" = "skipped" ]; then
+            echo "⚠️ **All jobs were skipped (dependency check failed)**" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ **Some checks failed. Please investigate.**" >> $GITHUB_STEP_SUMMARY
             exit 1
