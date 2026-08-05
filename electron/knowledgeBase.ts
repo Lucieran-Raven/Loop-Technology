@@ -55,7 +55,8 @@ export class KnowledgeBase {
       
       if (ext === '.pdf') {
         const dataBuffer = fs.readFileSync(filePath);
-        const data = await pdf(dataBuffer);
+        const pdfParse = require('pdf-parse');
+        const data = await pdfParse(dataBuffer);
         return data.text;
       }
       
