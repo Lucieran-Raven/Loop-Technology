@@ -91,9 +91,8 @@ jobs:
       
       - name: Build App
         run: |
-          npm run build
           npx tsc -p electron/tsconfig.json
-          npm run dist --if-present
+          npm run build
       
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
