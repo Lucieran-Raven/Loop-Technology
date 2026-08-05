@@ -378,4 +378,23 @@ export class LLMHelper {
       return { success: false, error: error.message };
     }
   }
+
+  // Generic content generation for custom prompts
+  public async generateContent(prompt: string): Promise<string> {
+    try {
+      if (this.useOllama) {
+        return await this.callOllama(prompt);
+      } else {
+        if (!this.model) {
+          throw new Error("No Gemini model configured");
+        }
+        const result = await this.model.generateContent(prompt);
+        const response = await result.response;
+        return response.text();
+      }
+    } catch (error) {
+      console.error("Error generating content:", error);
+      throw error;
+    }
+  }
 } 

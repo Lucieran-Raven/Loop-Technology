@@ -85,6 +85,37 @@ interface ElectronAPI {
   getCurrentPosition: () => Promise<{ x: number; y: number } | null>
   getCurrentSize: () => Promise<{ width: number; height: number } | null>
 
+  // Knowledge Base
+  getKnowledgeDocuments: () => Promise<any[]>
+  uploadKnowledgeDocument: (filePath: string, type: string) => Promise<any>
+  deleteKnowledgeDocument: (id: string) => Promise<boolean>
+  searchKnowledgeBase: (query: string) => Promise<any[]>
+  getRelevantKnowledgeContext: (query: string, maxDocs?: number) => Promise<string>
+
+  // Meeting Manager
+  startMeetingSession: (title?: string) => Promise<{ success: boolean; sessionId?: string; error?: string }>
+  endMeetingSession: () => Promise<{ success: boolean; session?: any; error?: string }>
+  addMeetingTranscript: (text: string) => Promise<{ success: boolean; error?: string }>
+  addMeetingScreenshot: (screenshotPath: string) => Promise<{ success: boolean; error?: string }>
+  updateMeetingContext: (context: any) => Promise<{ success: boolean; error?: string }>
+  getActiveMeetingSession: () => Promise<any>
+  getAllMeetingSessions: () => Promise<any[]>
+  generateMeetingSummary: (sessionId: string) => Promise<{ success: boolean; summary?: string; error?: string }>
+  extractMeetingActionItems: (sessionId: string) => Promise<{ success: boolean; actionItems?: string[]; error?: string }>
+  generateMeetingFullReport: (sessionId: string) => Promise<{ success: boolean; report?: any; error?: string }>
+  deleteMeetingSession: (sessionId: string) => Promise<{ success: boolean; error?: string }>
+
+  // Email Generator
+  generateFollowUpEmail: (sessionId: string) => Promise<{ success: boolean; email?: string; error?: string }>
+  generateTechnicalFollowUpEmail: (sessionId: string) => Promise<{ success: boolean; email?: string; error?: string }>
+  generateThankYouEmail: (sessionId: string) => Promise<{ success: boolean; email?: string; error?: string }>
+  generateCustomEmail: (template: string, sessionId: string) => Promise<{ success: boolean; email?: string; error?: string }>
+
+  // Platform Integration
+  getActivePlatform: () => Promise<{ success: boolean; platform?: string | null; error?: string }>
+  getAllPlatformsStatus: () => Promise<{ success: boolean; statuses?: Array<{ name: string; active: boolean }>; error?: string }>
+  getPlatformInfo: (platformName: 'zoom' | 'teams' | 'meet') => Promise<{ success: boolean; info?: any; error?: string }>
+
   invoke: (channel: string, ...args: any[]) => Promise<any>
 }
 
@@ -272,6 +303,37 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setWindowSize: (width: number, height: number) => ipcRenderer.invoke("set-window-size", width, height),
   getCurrentPosition: () => ipcRenderer.invoke("get-current-position"),
   getCurrentSize: () => ipcRenderer.invoke("get-current-size"),
+
+  // Knowledge Base
+  getKnowledgeDocuments: () => ipcRenderer.invoke("get-knowledge-documents"),
+  uploadKnowledgeDocument: (filePath: string, type: string) => ipcRenderer.invoke("upload-knowledge-document", filePath, type),
+  deleteKnowledgeDocument: (id: string) => ipcRenderer.invoke("delete-knowledge-document", id),
+  searchKnowledgeBase: (query: string) => ipcRenderer.invoke("search-knowledge-base", query),
+  getRelevantKnowledgeContext: (query: string, maxDocs?: number) => ipcRenderer.invoke("get-relevant-knowledge-context", query, maxDocs),
+
+  // Meeting Manager
+  startMeetingSession: (title?: string) => ipcRenderer.invoke("start-meeting-session", title),
+  endMeetingSession: () => ipcRenderer.invoke("end-meeting-session"),
+  addMeetingTranscript: (text: string) => ipcRenderer.invoke("add-meeting-transcript", text),
+  addMeetingScreenshot: (screenshotPath: string) => ipcRenderer.invoke("add-meeting-screenshot", screenshotPath),
+  updateMeetingContext: (context: any) => ipcRenderer.invoke("update-meeting-context", context),
+  getActiveMeetingSession: () => ipcRenderer.invoke("get-active-meeting-session"),
+  getAllMeetingSessions: () => ipcRenderer.invoke("get-all-meeting-sessions"),
+  generateMeetingSummary: (sessionId: string) => ipcRenderer.invoke("generate-meeting-summary", sessionId),
+  extractMeetingActionItems: (sessionId: string) => ipcRenderer.invoke("extract-meeting-action-items", sessionId),
+  generateMeetingFullReport: (sessionId: string) => ipcRenderer.invoke("generate-meeting-full-report", sessionId),
+  deleteMeetingSession: (sessionId: string) => ipcRenderer.invoke("delete-meeting-session", sessionId),
+
+  // Email Generator
+  generateFollowUpEmail: (sessionId: string) => ipcRenderer.invoke("generate-follow-up-email", sessionId),
+  generateTechnicalFollowUpEmail: (sessionId: string) => ipcRenderer.invoke("generate-technical-follow-up-email", sessionId),
+  generateThankYouEmail: (sessionId: string) => ipcRenderer.invoke("generate-thank-you-email", sessionId),
+  generateCustomEmail: (template: string, sessionId: string) => ipcRenderer.invoke("generate-custom-email", template, sessionId),
+
+  // Platform Integration
+  getActivePlatform: () => ipcRenderer.invoke("get-active-platform"),
+  getAllPlatformsStatus: () => ipcRenderer.invoke("get-all-platforms-status"),
+  getPlatformInfo: (platformName: 'zoom' | 'teams' | 'meet') => ipcRenderer.invoke("get-platform-info", platformName),
 
   invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args)
 } as ElectronAPI)

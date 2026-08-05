@@ -466,6 +466,286 @@ export function initializeIpcHandlers(appState: AppState): void {
     }
   });
 
+  // Knowledge Base handlers
+  ipcMain.handle("get-knowledge-documents", async () => {
+    try {
+      return appState.getKnowledgeBase().getAllDocuments();
+    } catch (error: any) {
+      console.error("Error getting knowledge documents:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("upload-knowledge-document", async (event, filePath: string, type: string) => {
+    try {
+      return await appState.getKnowledgeBase().uploadDocument(filePath, type as any);
+    } catch (error: any) {
+      console.error("Error uploading knowledge document:", error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle("delete-knowledge-document", async (event, id: string) => {
+    try {
+      return await appState.getKnowledgeBase().deleteDocument(id);
+    } catch (error: any) {
+      console.error("Error deleting knowledge document:", error);
+      return false;
+    }
+  });
+
+  ipcMain.handle("search-knowledge-base", async (event, query: string) => {
+    try {
+      return await appState.getKnowledgeBase().search(query);
+    } catch (error: any) {
+      console.error("Error searching knowledge base:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("get-relevant-knowledge-context", async (event, query: string, maxDocs?: number) => {
+    try {
+      return await appState.getKnowledgeBase().getRelevantContext(query, maxDocs);
+    } catch (error: any) {
+      console.error("Error getting relevant knowledge context:", error);
+      return '';
+    }
+  });
+
+  // Meeting Manager handlers
+  ipcMain.handle("start-meeting-session", async (event, title?: string) => {
+    try {
+      appState.initializeMeetingManager();
+      const sessionId = appState.getMeetingManager().startSession(title);
+      return { success: true, sessionId };
+    } catch (error: any) {
+      console.error("Error starting meeting session:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("end-meeting-session", async () => {
+    try {
+      const session = appState.getMeetingManager().endSession();
+      return { success: true, session };
+    } catch (error: any) {
+      console.error("Error ending meeting session:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("add-meeting-transcript", async (event, text: string) => {
+    try {
+      appState.getMeetingManager().addTranscript(text);
+      return { success: true };
+    } catch (error: any) {
+      console.error("Error adding meeting transcript:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("add-meeting-screenshot", async (event, screenshotPath: string) => {
+    try {
+      appState.getMeetingManager().addScreenshot(screenshotPath);
+      return { success: true };
+    } catch (error: any) {
+      console.error("Error adding meeting screenshot:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("update-meeting-context", async (event, context: any) => {
+    try {
+      appState.getMeetingManager().updateContext(context);
+      return { success: true };
+    } catch (error: any) {
+      console.error("Error updating meeting context:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("get-active-meeting-session", async () => {
+    try {
+      return appState.getMeetingManager().getActiveSession();
+    } catch (error: any) {
+      console.error("Error getting active meeting session:", error);
+      return null;
+    }
+  });
+
+  ipcMain.handle("get-all-meeting-sessions", async () => {
+    try {
+      return appState.getMeetingManager().getAllSessions();
+    } catch (error: any) {
+      console.error("Error getting all meeting sessions:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("generate-meeting-summary", async (event, sessionId: string) => {
+    try {
+      const session = appState.getMeetingManager().getSessionById(sessionId);
+      if (!session) {
+        return { success: false, error: "Session not found" };
+      }
+      const summary = await appState.getMeetingManager().generateSummary(session);
+      return { success: true, summary };
+    } catch (error: any) {
+      console.error("Error generating meeting summary:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("extract-meeting-action-items", async (event, sessionId: string) => {
+    try {
+      const session = appState.getMeetingManager().getSessionById(sessionId);
+      if (!session) {
+        return { success: false, error: "Session not found" };
+      }
+      const actionItems = await appState.getMeetingManager().extractActionItems(session);
+      return { success: true, actionItems };
+    } catch (error: any) {
+      console.error("Error extracting meeting action items:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("generate-meeting-full-report", async (event, sessionId: string) => {
+    try {
+      const session = appState.getMeetingManager().getSessionById(sessionId);
+      if (!session) {
+        return { success: false, error: "Session not found" };
+      }
+      const report = await appState.getMeetingManager().generateFullReport(session);
+      return { success: true, report };
+    } catch (error: any) {
+      console.error("Error generating meeting full report:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("delete-meeting-session", async (event, sessionId: string) => {
+    try {
+      const deleted = appState.getMeetingManager().deleteSession(sessionId);
+      return { success: deleted };
+    } catch (error: any) {
+      console.error("Error deleting meeting session:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Email Generator handlers
+  ipcMain.handle("generate-follow-up-email", async (event, sessionId: string) => {
+    try {
+      appState.initializeEmailGenerator();
+      const session = appState.getMeetingManager().getSessionById(sessionId);
+      if (!session) {
+        return { success: false, error: "Session not found" };
+      }
+      const email = await appState.getEmailGenerator().generateFollowUp(session);
+      return { success: true, email };
+    } catch (error: any) {
+      console.error("Error generating follow-up email:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("generate-technical-follow-up-email", async (event, sessionId: string) => {
+    try {
+      appState.initializeEmailGenerator();
+      const session = appState.getMeetingManager().getSessionById(sessionId);
+      if (!session) {
+        return { success: false, error: "Session not found" };
+      }
+      const email = await appState.getEmailGenerator().generateTechnicalFollowUp(session);
+      return { success: true, email };
+    } catch (error: any) {
+      console.error("Error generating technical follow-up email:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("generate-thank-you-email", async (event, sessionId: string) => {
+    try {
+      appState.initializeEmailGenerator();
+      const session = appState.getMeetingManager().getSessionById(sessionId);
+      if (!session) {
+        return { success: false, error: "Session not found" };
+      }
+      const email = await appState.getEmailGenerator().generateThankYou(session);
+      return { success: true, email };
+    } catch (error: any) {
+      console.error("Error generating thank-you email:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("generate-custom-email", async (event, template: string, sessionId: string) => {
+    try {
+      appState.initializeEmailGenerator();
+      const session = appState.getMeetingManager().getSessionById(sessionId);
+      if (!session) {
+        return { success: false, error: "Session not found" };
+      }
+      const email = await appState.getEmailGenerator().generateCustomEmail(template, session);
+      return { success: true, email };
+    } catch (error: any) {
+      console.error("Error generating custom email:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Platform Integration handlers
+  ipcMain.handle("get-active-platform", async () => {
+    try {
+      const platform = await appState.getPlatformManager().getActivePlatform();
+      return { success: true, platform: platform ? platform.name : null };
+    } catch (error: any) {
+      console.error("Error getting active platform:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("get-all-platforms-status", async () => {
+    try {
+      const statuses = await appState.getPlatformManager().getAllPlatformsStatus();
+      return { success: true, statuses };
+    } catch (error: any) {
+      console.error("Error getting all platforms status:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("get-platform-info", async (event, platformName: 'zoom' | 'teams' | 'meet') => {
+    try {
+      const platform = appState.getPlatformManager().getPlatformByName(platformName);
+      if (!platform) {
+        return { success: false, error: "Platform not found" };
+      }
+      
+      const [isActive, meetingId, participants, isScreenSharing] = await Promise.all([
+        platform.isActive(),
+        platform.getMeetingId(),
+        platform.getParticipants(),
+        platform.isScreenSharing()
+      ]);
+      
+      return {
+        success: true,
+        info: {
+          name: platform.name,
+          isActive,
+          meetingId,
+          participants,
+          isScreenSharing
+        }
+      };
+    } catch (error: any) {
+      console.error("Error getting platform info:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
   ipcMain.handle("minimize-window", async () => {
     try {
       appState.windowHelper.minimizeWindow();

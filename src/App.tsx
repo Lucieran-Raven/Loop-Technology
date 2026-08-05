@@ -100,6 +100,37 @@ declare global {
       getCurrentPosition: () => Promise<{ x: number; y: number } | null>
       getCurrentSize: () => Promise<{ width: number; height: number } | null>
 
+      // Knowledge Base
+      getKnowledgeDocuments: () => Promise<any[]>
+      uploadKnowledgeDocument: (filePath: string, type: string) => Promise<any>
+      deleteKnowledgeDocument: (id: string) => Promise<boolean>
+      searchKnowledgeBase: (query: string) => Promise<any[]>
+      getRelevantKnowledgeContext: (query: string, maxDocs?: number) => Promise<string>
+
+      // Meeting Manager
+      startMeetingSession: (title?: string) => Promise<{ success: boolean; sessionId?: string; error?: string }>
+      endMeetingSession: () => Promise<{ success: boolean; session?: any; error?: string }>
+      addMeetingTranscript: (text: string) => Promise<{ success: boolean; error?: string }>
+      addMeetingScreenshot: (screenshotPath: string) => Promise<{ success: boolean; error?: string }>
+      updateMeetingContext: (context: any) => Promise<{ success: boolean; error?: string }>
+      getActiveMeetingSession: () => Promise<any>
+      getAllMeetingSessions: () => Promise<any[]>
+      generateMeetingSummary: (sessionId: string) => Promise<{ success: boolean; summary?: string; error?: string }>
+      extractMeetingActionItems: (sessionId: string) => Promise<{ success: boolean; actionItems?: string[]; error?: string }>
+      generateMeetingFullReport: (sessionId: string) => Promise<{ success: boolean; report?: any; error?: string }>
+      deleteMeetingSession: (sessionId: string) => Promise<{ success: boolean; error?: string }>
+
+      // Email Generator
+      generateFollowUpEmail: (sessionId: string) => Promise<{ success: boolean; email?: string; error?: string }>
+      generateTechnicalFollowUpEmail: (sessionId: string) => Promise<{ success: boolean; email?: string; error?: string }>
+      generateThankYouEmail: (sessionId: string) => Promise<{ success: boolean; email?: string; error?: string }>
+      generateCustomEmail: (template: string, sessionId: string) => Promise<{ success: boolean; email?: string; error?: string }>
+
+      // Platform Integration
+      getActivePlatform: () => Promise<{ success: boolean; platform?: string | null; error?: string }>
+      getAllPlatformsStatus: () => Promise<{ success: boolean; statuses?: Array<{ name: string; active: boolean }>; error?: string }>
+      getPlatformInfo: (platformName: 'zoom' | 'teams' | 'meet') => Promise<{ success: boolean; info?: any; error?: string }>
+
       invoke: (channel: string, ...args: any[]) => Promise<any>
     }
   }

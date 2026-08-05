@@ -90,9 +90,10 @@ export class WindowHelper {
       fullscreenable: false,
       hasShadow: false,
       backgroundColor: "#00000000",
-      focusable: true,
+      focusable: true, // Keep focusable for interaction, but enhance stealth in other ways
       resizable: true,
       movable: true,
+      skipTaskbar: true, // Enhanced stealth: skip taskbar
       x: 100, // Start at a visible position
       y: 100
     }
@@ -101,13 +102,22 @@ export class WindowHelper {
     // this.mainWindow.webContents.openDevTools()
     this.mainWindow.setContentProtection(true)
 
+    // Windows-specific GPU hook for enhanced stealth
+    if (process.platform === "win32") {
+      this.mainWindow.setContentProtection(true)
+      // Additional Windows stealth: Set as tool window with screen-saver level
+      this.mainWindow.setAlwaysOnTop(true, "screen-saver")
+    }
+
     if (process.platform === "darwin") {
       this.mainWindow.setVisibleOnAllWorkspaces(true, {
         visibleOnFullScreen: true
       })
       this.mainWindow.setHiddenInMissionControl(true)
       this.mainWindow.setAlwaysOnTop(true, "floating")
+      this.mainWindow.setContentProtection(true)
     }
+    
     if (process.platform === "linux") {
       // Linux-specific optimizations for better compatibility
       if (this.mainWindow.setHasShadow) {
@@ -161,6 +171,13 @@ export class WindowHelper {
       if (this.mainWindow) {
         const bounds = this.mainWindow.getBounds()
         this.windowSize = { width: bounds.width, height: bounds.height }
+      }
+    })
+
+    this.mainWindow.on("close", (event) => {
+      if (!this.appState.isAppQuitting()) {
+        event.preventDefault()
+        this.hideMainWindow()
       }
     })
 

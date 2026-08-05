@@ -7,6 +7,10 @@ import { ProcessingHelper } from "./ProcessingHelper"
 import { AudioAutoMonitor } from "./AudioAutoMonitor"
 import { ScreenAutoMonitor } from "./ScreenAutoMonitor"
 import { ContextManager } from "./ContextManager"
+import { KnowledgeBase } from "./knowledgeBase"
+import { MeetingManager } from "./meetingManager"
+import { EmailGenerator } from "./emailGenerator"
+import { PlatformManager } from "./platformIntegration"
 
 export class AppState {
   private static instance: AppState | null = null
@@ -18,7 +22,12 @@ export class AppState {
   public audioAutoMonitor: AudioAutoMonitor
   public screenAutoMonitor: ScreenAutoMonitor
   public contextManager: ContextManager
+  private knowledgeBase: KnowledgeBase
+  private meetingManager: MeetingManager
+  private emailGenerator: EmailGenerator
+  private platformManager: PlatformManager
   private tray: Tray | null = null
+  private isQuitting: boolean = false
 
   // View management
   private view: "queue" | "solutions" = "queue"
@@ -67,6 +76,18 @@ export class AppState {
     // Initialize ContextManager
     this.contextManager = new ContextManager()
 
+    // Initialize KnowledgeBase
+    this.knowledgeBase = new KnowledgeBase(app.getPath('userData'))
+
+    // Initialize MeetingManager (will be set after ProcessingHelper is ready)
+    this.meetingManager = null as any; // Will be initialized in initializeMeetingManager
+
+    // Initialize EmailGenerator (will be set after ProcessingHelper is ready)
+    this.emailGenerator = null as any; // Will be initialized in initializeEmailGenerator
+
+    // Initialize PlatformManager
+    this.platformManager = new PlatformManager()
+
     // Initialize ScreenAutoMonitor later (after ProcessingHelper is ready)
     this.screenAutoMonitor = null as any; // Will be initialized in initializeScreenMonitor
 
@@ -104,6 +125,18 @@ export class AppState {
           timestamp: capture.timestamp
         });
       });
+    }
+  }
+
+  public initializeMeetingManager(): void {
+    if (!this.meetingManager) {
+      this.meetingManager = new MeetingManager(this.processingHelper.getLLMHelper());
+    }
+  }
+
+  public initializeEmailGenerator(): void {
+    if (!this.emailGenerator) {
+      this.emailGenerator = new EmailGenerator(this.processingHelper.getLLMHelper());
     }
   }
 
@@ -353,6 +386,44 @@ export class AppState {
     return this.screenAutoMonitor;
   }
 
+  // Quit application properly
+  public quitApp(): void {
+    this.isQuitting = true
+    if (this.getMainWindow()) {
+      this.getMainWindow().close()
+    } else {
+      app.quit()
+    }
+  }
+
+  public isAppQuitting(): boolean {
+    return this.isQuitting
+  }
+
+  public setQuitting(value: boolean): void {
+    this.isQuitting = value
+  }
+
+  // Knowledge Base methods
+  public getKnowledgeBase(): KnowledgeBase {
+    return this.knowledgeBase
+  }
+
+  // Meeting Manager methods
+  public getMeetingManager(): MeetingManager {
+    return this.meetingManager
+  }
+
+  // Email Generator methods
+  public getEmailGenerator(): EmailGenerator {
+    return this.emailGenerator
+  }
+
+  // Platform Manager methods
+  public getPlatformManager(): PlatformManager {
+    return this.platformManager
+  }
+
   // Context management methods
   public addManualContext(content: string, metadata?: any): void {
     this.contextManager.addManualContext(content, metadata);
@@ -414,6 +485,12 @@ async function initializeApp() {
     if (process.platform !== "darwin") {
       app.quit()
     }
+  })
+
+  // Handle quit command
+  app.on("before-quit", () => {
+    const instance = AppState.getInstance()
+    instance.setQuitting(true)
   })
 
   app.dock?.hide() // Hide dock icon (optional)
