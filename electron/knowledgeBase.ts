@@ -1,7 +1,6 @@
 // electron/knowledgeBase.ts
 import fs from 'fs-extra';
 import path from 'path';
-import * as pdf from 'pdf-parse';
 import mammoth from 'mammoth';
 
 interface KnowledgeDocument {
@@ -55,6 +54,7 @@ export class KnowledgeBase {
       
       if (ext === '.pdf') {
         const dataBuffer = fs.readFileSync(filePath);
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const pdfParse = require('pdf-parse');
         const data = await pdfParse(dataBuffer);
         return data.text;
