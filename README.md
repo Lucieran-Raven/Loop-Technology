@@ -251,6 +251,120 @@ This project welcomes contributions! While I have limited time for active mainte
 - 🌍 Translations and internationalization
 - 🎨 UI/UX enhancements
 
+### Development Workflow
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Make your changes
+4. Run linting: `npm run lint`
+5. Build the project: `npm run build`
+6. Commit your changes: `git commit -m "Add my feature"`
+7. Push to the branch: `git push origin feature/my-feature`
+8. Open a Pull Request
+
+### CI/CD Setup
+
+Due to GitHub security restrictions, the CI/CD workflow file needs to be added manually:
+
+1. Create the file `.github/workflows/ci.yml` with the following content:
+```yaml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Run TypeScript check
+      run: npm run build
+      
+    - name: Run tests
+      run: npm test
+      continue-on-error: true
+
+  build:
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Build Electron app
+      run: npm run build
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Build artifacts ${{ matrix.os }}
+        path: |
+          dist/
+          dist-electron/
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Run ESLint
+      run: npm run lint
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run security audit
+      run: npm audit
+      continue-on-error: true
+```
+
+2. Commit and push this file to enable automated CI/CD
+
 ## 📄 License
 
 ISC License - Free for personal and commercial use.
