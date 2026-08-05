@@ -15,7 +15,7 @@
     "watch": "tsc -p electron/tsconfig.json --watch",
     "start": "npm run app:dev",
     "dist": "npm run app:build",
-    "lint": "eslint . --ext .ts,.tsx --ignore-path node_modules/",
+    "lint": "eslint . --ext .ts,.tsx",
     "test": "echo \"No tests configured yet\" && exit 0"
   },
   "build": {

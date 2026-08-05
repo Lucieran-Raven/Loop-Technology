@@ -35,10 +35,10 @@
     }
   },
   "ignorePatterns": [
-    "dist/",
-    "dist-electron/",
-    "node_modules/",
-    "release/",
-    "build/"
+    "dist",
+    "dist-electron",
+    "node_modules",
+    "release",
+    "build"
   ]
 }
