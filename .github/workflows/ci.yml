@@ -141,6 +141,7 @@ jobs:
           release_name: "Release v${{ github.run_number }}"
           draft: false
           prerelease: false
+        continue-on-error: true
 
   monitor:
     name: 📊 Monitor Workflow
