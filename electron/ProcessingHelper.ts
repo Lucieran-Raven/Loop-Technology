@@ -6,8 +6,6 @@ import dotenv from "dotenv"
 
 dotenv.config()
 
-const isDev = process.env.NODE_ENV === "development"
-const isDevTest = process.env.IS_DEV_TEST === "true"
 const MOCK_API_WAIT_TIME = Number(process.env.MOCK_API_WAIT_TIME) || 500
 
 export class ProcessingHelper {

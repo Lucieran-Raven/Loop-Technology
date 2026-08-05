@@ -200,7 +200,7 @@ const Queue: React.FC<QueueProps> = ({ setView }) => {
       }
     });
     return () => {
-      unsubscribe && unsubscribe();
+      if (unsubscribe) unsubscribe();
     };
   }, [refetch]);
 
